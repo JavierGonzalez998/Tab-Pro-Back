@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("MYSQL_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String    @default("")
+  resetToken    String?
+  resetExpires  DateTime?
+  oauthProvider String?
+  oauthId       String?
+  createdAt     DateTime  @default(now())
+  tabs          Tab[]
+
+  @@unique([oauthProvider, oauthId])
+  @@map("users")
+}
+
+model Tab {
+  id           String    @id @default(uuid())
+  userId       String
+  name         String
+  originalName String
+  s3Key        String
+  fileSize     Int
+  shareToken   String?   @unique
+  createdAt    DateTime  @default(now())
+  user         User      @relation(fields: [userId], references: [id])
+
+  @@map("tabs")
+}
