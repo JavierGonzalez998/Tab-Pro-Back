@@ -235,6 +235,9 @@ api.post('/tabs', async (c) => {
   const file = formData.get('file') as File | null
   if (!file) return c.json({ error: 'File required' }, 400)
 
+  const existingCount = await prisma.tab.count({ where: { userId: sub } })
+  if (existingCount >= 5) return c.json({ error: 'Limit of 5 tabs reached. Delete some to upload more.' }, 403)
+
   const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase()
   if (!['.gp', '.gp3', '.gp4', '.gp5', '.gpx', '.tex'].includes(ext))
     return c.json({ error: 'Invalid file type' }, 400)
